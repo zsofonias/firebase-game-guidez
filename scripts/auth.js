@@ -3,15 +3,45 @@ firebaseAuth.onAuthStateChanged(user => {
   if (user) {
     console.log('User logged In', user);
     // get data
-    firestore
-      .collection('guides')
-      .get()
-      .then(snapshot => {
-        setupGuides(snapshot.docs);
-      });
+    // firestore
+    //   .collection('guides')
+    //   .get()
+    //   .then(snapshot => {
+    //     setupUI(user);
+    //     setupGuides(snapshot.docs);
+    //   });
+    // get data in real-time
+    firestore.collection('guides').onSnapshot(snapshot => {
+      setupUI(user);
+      setupGuides(snapshot.docs);
+    });
   } else {
+    setupUI();
     setupGuides([]);
   }
+});
+
+// create new guide
+const createForm = document.querySelector('#create-form');
+
+createForm.addEventListener('submit', e => {
+  e.preventDefault();
+
+  firestore
+    .collection('guides')
+    .add({
+      title: createForm['title'].value,
+      content: createForm['content'].value
+    })
+    .then(() => {
+      // select sign up modal ui component and close it
+      const modal = document.querySelector('#modal-create');
+      M.Modal.getInstance(modal).close();
+      createForm.reset();
+    })
+    .catch(err => {
+      console.log(err.message);
+    });
 });
 
 // sign up
@@ -58,7 +88,7 @@ loginForm.addEventListener('submit', e => {
       // select sign up modal ui component and close it
       const modal = document.querySelector('#modal-login');
       M.Modal.getInstance(modal).close();
-      signupForm.reset();
+      loginForm.reset();
     })
     .catch(err => console.log(err));
 });
