@@ -1,3 +1,14 @@
+// add admin cloud function
+const adminForm = document.querySelector('.admin-actions');
+adminForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const adminEmail = document.querySelector('#admin-email').value;
+  const addAdminRole = firebaseFunc.httpsCallable('addAdminRole');
+  addAdminRole({ email: adminEmail }).then(res => {
+    console.log(res);
+  });
+});
+
 // listen for auth status changes
 firebaseAuth.onAuthStateChanged(user => {
   if (user) {
@@ -16,7 +27,7 @@ firebaseAuth.onAuthStateChanged(user => {
         setupGuides(snapshot.docs);
         setupUI(user);
       },
-      err => console.log(err)
+      err => console.log(err.message)
     );
   } else {
     setupUI();
