@@ -1,12 +1,28 @@
 const loggedOutLinks = document.querySelectorAll('.logged-out');
 const loggedInLinks = document.querySelectorAll('.logged-in');
+const accountDetails = document.querySelector('.account-details');
 
 const setupUI = user => {
   if (user) {
+    // account info
+    firestore
+      .collection('users')
+      .doc(user.uid)
+      .get()
+      .then(doc => {
+        const html = `
+      <div>Logged in as ${user.email}</div>
+      <div>${doc.data().bio}</div>
+      `;
+        accountDetails.innerHTML = html;
+      });
+
     // show logged in links
     loggedInLinks.forEach(link => (link.style.display = 'block'));
     loggedOutLinks.forEach(link => (link.style.display = 'none'));
   } else {
+    // hide account info
+    accountDetails.innerHTML = '';
     // show logged out links
     loggedInLinks.forEach(link => (link.style.display = 'none'));
     loggedOutLinks.forEach(link => (link.style.display = 'block'));

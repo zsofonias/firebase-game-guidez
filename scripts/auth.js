@@ -11,10 +11,13 @@ firebaseAuth.onAuthStateChanged(user => {
     //     setupGuides(snapshot.docs);
     //   });
     // get data in real-time
-    firestore.collection('guides').onSnapshot(snapshot => {
-      setupUI(user);
-      setupGuides(snapshot.docs);
-    });
+    firestore.collection('guides').onSnapshot(
+      snapshot => {
+        setupGuides(snapshot.docs);
+        setupUI(user);
+      },
+      err => console.log(err)
+    );
   } else {
     setupUI();
     setupGuides([]);
@@ -39,9 +42,7 @@ createForm.addEventListener('submit', e => {
       M.Modal.getInstance(modal).close();
       createForm.reset();
     })
-    .catch(err => {
-      console.log(err.message);
-    });
+    .catch(err => console.log(err.message));
 });
 
 // sign up
@@ -58,6 +59,14 @@ signupForm.addEventListener('submit', e => {
   firebaseAuth
     .createUserWithEmailAndPassword(email, password)
     .then(cred => {
+      return firestore
+        .collection('users')
+        .doc(cred.user.uid)
+        .set({
+          bio: signupForm['signup-bio'].value
+        });
+    })
+    .then(() => {
       // select sign up modal ui component
       const modal = document.querySelector('#modal-signup');
       M.Modal.getInstance(modal).close();
